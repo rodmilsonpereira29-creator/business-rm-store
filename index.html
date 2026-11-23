@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business R&amp;M Store · Reservas</title>
+<meta name="description" content="Reserva os teus produtos na Business R&amp;M Store. Pronta entrega e encomendas em Huambo e Luanda.">
+<style>
+:root{
+  --bg:#F5F6FA; --surface:#FFFFFF; --ink:#161B33; --muted:#575E7C; --line:#DADEEB;
+  --brand:#2B3A8C; --brand-ink:#FFFFFF; --accent:#F2B33D; --accent-ink:#2A1F00;
+  --ok:#17784C; --ok-bg:#E1F3EA; --warn:#A8480F; --wa:#1FA855;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#11142A; --surface:#1A1F40; --ink:#EEF0FA; --muted:#A3AACB; --line:#2C3361;
+    --brand:#9AA8FF; --brand-ink:#11142A; --accent:#F2B33D; --accent-ink:#2A1F00;
+    --ok:#6FD6A2; --ok-bg:#183B2C; --warn:#F0A36A; --wa:#3CC474;
+    color-scheme: dark;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  font-size:16px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+a{color:inherit}
+
+.shell{max-width:520px;margin:0 auto;padding:16px 16px 120px}
+.shell.wide{max-width:760px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-weight:800;font-size:1.05rem;letter-spacing:-.01em;text-decoration:none}
+
+h1{font-size:1.7rem;line-height:1.15;margin:0 0 6px;letter-spacing:-.02em}
+h2{font-size:1.05rem;margin:26px 0 8px}
+.lead{color:var(--muted);margin:0 0 20px}
+.hint{font-weight:400;color:var(--muted);font-size:.86rem}
+.err{color:var(--warn);font-size:.9rem;min-height:1.2em;margin:0}
+
+/* produtos */
+.products{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.products li+li{border-top:1px solid var(--line)}
+.product{width:100%;display:flex;align-items:center;gap:14px;text-align:left;background:transparent;border:0;padding:14px;cursor:pointer}
+.product[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 22%,var(--surface))}
+.product:disabled{opacity:.55;cursor:not-allowed}
+.tile{flex:none;width:54px;height:54px;border-radius:12px;overflow:hidden;display:grid;place-items:center;font-weight:800;color:#fff;font-size:1.1rem}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.p-name{font-weight:700;display:block}
+.p-meta{display:block;color:var(--muted);font-size:.88rem}
+.p-price{margin-left:auto;font-weight:700;white-space:nowrap;text-align:right}
+.p-price small{display:block;font-weight:600;color:var(--muted);font-size:.8rem}
+.badge{display:inline-block;margin-top:4px;font-size:.78rem;font-weight:700;padding:2px 8px;border-radius:999px}
+.badge.stock{background:var(--ok-bg);color:var(--ok)}
+.badge.order{background:color-mix(in srgb,var(--accent) 35%,var(--surface));color:var(--ink)}
+.badge.out{background:var(--line);color:var(--muted)}
+.gallery{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:14px 0 0;padding-bottom:6px}
+.gallery img{height:240px;width:auto;max-width:85%;object-fit:cover;border-radius:12px;scroll-snap-align:start;flex:none}
+
+/* formulários */
+form{display:grid;gap:14px}
+label{display:grid;gap:6px;font-weight:600;font-size:.92rem}
+input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;width:100%;min-height:46px}
+textarea{min-height:160px;resize:vertical}
+input[type=file]{min-height:0;padding:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{border:0;border-radius:12px;padding:14px 18px;font-weight:700;cursor:pointer;min-height:48px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.primary{background:var(--brand);color:var(--brand-ink)}
+.btn.wa{background:var(--wa);color:#08210F}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:transparent;border:1px solid var(--warn);color:var(--warn)}
+.btn.small{padding:8px 12px;min-height:38px;font-size:.88rem;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.link{background:none;border:0;padding:0;color:var(--brand);font-weight:600;cursor:pointer;text-align:left;text-decoration:underline}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.contact{margin:0 0 18px}
+.notice{background:color-mix(in srgb,var(--accent) 22%,var(--surface));border-radius:12px;padding:12px 14px;font-size:.92rem}
+.notice:empty{display:none}
+.flash{background:var(--ok-bg);color:var(--ok);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-weight:600}
+.flash.bad{background:color-mix(in srgb,var(--warn) 18%,var(--surface));color:var(--warn)}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:20px;color:var(--muted)}
+.done{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.done dl{margin:12px 0 16px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px}
+.done dt{color:var(--muted)}
+.done dd{margin:0;font-weight:600}
+.foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-size:.86rem;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+label.btn:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+
+/* administração */
+.tabs{display:flex;gap:18px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:0;padding:10px 2px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.next{background:var(--accent);color:var(--accent-ink);border-radius:16px;padding:20px;margin-bottom:8px}
+.next p{margin:0}
+.next .big{font-size:2.1rem;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin:2px 0 8px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.res{display:grid;grid-template-columns:86px 1fr;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.res.solo{grid-template-columns:1fr}
+.res.muted{opacity:.7}
+.when{border-right:1px solid var(--line);padding-right:12px}
+.when b{display:block;font-size:1.25rem;line-height:1.1}
+.when span{color:var(--muted);font-size:.85rem}
+.res h3{margin:0 0 2px;font-size:1rem}
+.res .info{color:var(--muted);font-size:.92rem;margin:0 0 10px;overflow-wrap:anywhere}
+.tag{display:inline-block;font-size:.78rem;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:4px;vertical-align:middle}
+.tag.pend{background:color-mix(in srgb,var(--accent) 35%,var(--surface));color:var(--ink)}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.tag.off{background:var(--line);color:var(--muted)}
+@media (max-width:420px){
+  .res{grid-template-columns:1fr}
+  .when{border-right:0;border-bottom:1px solid var(--line);padding:0 0 8px}
+}
+.thumbs{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.thumbs:empty{display:none}
+.thumb{position:relative;width:66px;height:66px}
+.thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px;display:block}
+.thumb button{position:absolute;top:-8px;right:-8px;width:28px;height:28px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);cursor:pointer;font-size:1rem;line-height:1}
+.seg{display:inline-flex;max-width:100%;overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;margin:0 0 14px}
+.seg button{border:0;background:transparent;padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:600;font-size:.9rem;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+
+/* finanças */
+.fin{background:var(--accent);color:var(--accent-ink);border-radius:16px;padding:20px;margin-bottom:8px}
+.fin p{margin:0}
+.fin .big{font-size:2.1rem;font-weight:800;letter-spacing:-.03em;line-height:1.15}
+.fin-row{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;padding-top:12px;border-top:1px solid rgba(42,31,0,.28)}
+.fin-row div+div{border-left:1px solid rgba(42,31,0,.28);padding-left:12px}
+.fin-row span{display:block;font-size:.82rem}
+.fin-row b{display:block;font-size:1rem;overflow-wrap:anywhere}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.day-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}
+.lines{list-style:none;margin:0;padding:0}
+.lines li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.lines li span:last-child{white-space:nowrap;font-weight:600}
+.lines li.sum{font-weight:800}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
+.box .lines li:first-child{border-top:0}
+.prev{list-style:none;margin:12px 0;padding:0;display:grid;gap:8px}
+.prev li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.prev .bad{color:var(--warn);font-size:.88rem;margin:4px 0 0}
+.prev .good{color:var(--ok);font-size:.88rem;font-weight:700;margin:4px 0 0}
+
+/* aviso de entrega */
+.toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);width:min(calc(100% - 24px),480px);
+  background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--wa);border-radius:14px;
+  padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:10}
+.toast[hidden]{display:none}
+.toast small{color:var(--muted);display:block;margin-bottom:6px;font-weight:600}
+.toast pre{margin:0 0 12px;white-space:pre-wrap;font:inherit}
+.toast .actions{justify-content:flex-end}
+@media (prefers-reduced-motion:no-preference){
+  .toast:not([hidden]){animation:rise .25s ease-out}
+  @keyframes rise{from{transform:translate(-50%,12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+}
+</style>
+</head>
+<body>
+<div class="shell" id="shell">
+  <header id="top"></header>
+  <main id="view"></main>
+</div>
+
+<div class="toast" id="toast" role="alert" hidden>
+  <small>Entrega a chegar</small>
+  <pre id="toastText"></pre>
+  <div class="actions">
+    <button class="btn ghost small" data-act="alertClose">Fechar</button>
+    <a class="btn wa small" id="toastCall" href="#" target="_blank" rel="noopener">Falar com o cliente</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =====================================================================
+   Business R&M Store · site de reservas
+   Ligado ao Supabase. A chave abaixo é pública (publishable) e pode estar
+   no código. NUNCA coloques aqui a chave "secret" ou "service_role".
+   ===================================================================== */
+const SUPABASE_URL = "https://zapbdhjsgngryjizaqna.supabase.co";
+const SUPABASE_KEY = "sb_publishable_CZ1AHq8CSsWt_5ZAlSp2zQ_bI86inht";
+const MAX_IMGS = 5;
+
+const db = (window.supabase && window.supabase.createClient)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+/* ---------- ajudantes ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const kz = n => (n < 0 ? "-" : "") + String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " Kz";
+const fmtDate = s => { const [y, m, d] = s.split("-"); return `${d}/${m}/${y}`; };
+function addDays(n){ const d = new Date(); d.setDate(d.getDate() + n); return iso(d); }
+function dayLabel(s){
+  if(s === addDays(0)) return "Hoje";
+  if(s === addDays(1)) return "Amanhã";
+  if(s === addDays(-1)) return "Ontem";
+  return fmtDate(s);
+}
+const hm = t => String(t).slice(0, 5);
+const dueOf = r => new Date(r.delivery_at);
+const fmtPhone = n => { const d = String(n).replace(/\D/g, "").slice(-9); return d.length === 9 ? d.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3") : String(n); };
+const telHref = n => { let d = String(n).replace(/\D/g, ""); if(d.length === 9) d = "244" + d; return "tel:+" + d; };
+function wa(phone, text){
+  let n = String(phone).replace(/\D/g, "");
+  if(n.length === 9) n = "244" + n;
+  return `https://wa.me/${n}?text=${encodeURIComponent(text)}`;
+}
+function mapLink(place){
+  const m = String(place).match(/(-?\d{1,3}\.\d+),\s*(-?\d{1,3}\.\d+)/);
+  return m ? `https://www.google.com/maps?q=${m[1]},${m[2]}` : "";
+}
+function countdown(r){
+  const diff = dueOf(r) - new Date();
+  if(diff <= 0) return "já chegou a hora";
+  const min = Math.round(diff / 60000);
+  if(min < 60) return `em ${min} min`;
+  const h = Math.floor(min / 60);
+  if(h < 24) return `em ${h} h ${min % 60} min`;
+  const dd = Math.floor(h / 24);
+  return `em ${dd} ${dd === 1 ? "dia" : "dias"}`;
+}
+const leadText = p => p.min_days === p.max_days ? `${p.max_days} dias` : `${p.min_days} a ${p.max_days} dias`;
+const imgsOf = p => p.images || [];
+const sumOf = list => list.reduce((a, e) => a + e.amount_kz, 0);
+/* ---------- estado ---------- */
+const S = {
+  settings: {whatsapp: "935680750", phone: "935680750", pay_info: "", deposit_percent: 50},
+  products: [], ready: false, loadError: "",
+  selected: null, done: null, sending: false,
+  session: null, isAdmin: null,
+  tab: "orders", reservations: [], payments: [],
+  finPeriod: "month", flash: "", flashBad: false,
+  importMode: false, importText: "", importRecs: [], importMsg: "",
+  pending: [], alerted: new Set(), busy: false
+};
+const depositOf = p => Math.round(p.price_kz * S.settings.deposit_percent / 100);
+const owedAtDelivery = r => (r.kind === "order" && r.deposit_paid) ? r.total_kz - r.deposit_kz : r.total_kz;
+function payLine(r){
+  if(r.status === "cancelada") return "";
+  if(r.status === "entregue") return `Total recebido: ${kz(r.total_kz)}`;
+  if(r.kind === "order") return r.deposit_paid
+    ? `Entrada paga (${kz(r.deposit_kz)}). Receber na entrega: ${kz(r.total_kz - r.deposit_kz)}`
+    : `Entrada por pagar: ${kz(r.deposit_kz)}. Total: ${kz(r.total_kz)}`;
+  return `Receber na entrega: ${kz(r.total_kz)}`;
+}
+function friendly(err){
+  if(err && err.code === "P0001" && err.message) return err.message;
+  return "Não foi possível concluir. Verifica a internet e tenta outra vez.";
+}
+
+/* ---------- dados ---------- */
+async function loadPublic(){
+  const s = await db.from("settings").select("*").eq("id", 1).maybeSingle();
+  if(s && s.data) S.settings = s.data;
+  let q = db.from("products").select("*").order("id", {ascending: false});
+  if(!S.isAdmin) q = q.eq("active", true);
+  const p = await q;
+  if(p.error) throw p.error;
+  S.products = p.data || [];
+  S.ready = true;
+}
+async function loadAdmin(){
+  const [r, pay] = await Promise.all([
+    db.from("reservations").select("*").order("delivery_at", {ascending: true}),
+    db.from("payments").select("*").order("paid_on", {ascending: false}).order("id", {ascending: false})
+  ]);
+  if(r.error) throw r.error;
+  if(pay.error) throw pay.error;
+  S.reservations = r.data || [];
+  S.payments = pay.data || [];
+}
+async function afterAuth(){
+  if(!S.session){ S.isAdmin = false; render(); return; }
+  S.isAdmin = null; render();
+  const r = await db.rpc("is_admin");
+  S.isAdmin = r.data === true;
+  if(S.isAdmin){
+    try{ await Promise.all([loadAdmin(), loadPublic()]); }catch(e){ S.flash = friendly(e); S.flashBad = true; }
+  }
+  render();
+}
+
+/* ---------- ecrã principal ---------- */
+function isAdminRoute(){ return location.hash.indexOf("#/admin") === 0; }
+
+function renderHeader(){
+  const adminOn = isAdminRoute() && S.isAdmin;
+  $("shell").classList.toggle("wide", adminOn);
+  $("top").innerHTML = `<a class="brand" href="#/">Business R&amp;M Store</a>` +
+    (adminOn ? `<button class="btn ghost small" data-act="logout">Sair</button>` : "");
+}
+
+function render(){
+  renderHeader();
+  if(!db){
+    $("view").innerHTML = `<div class="empty">Não foi possível carregar o site. Verifica a ligação à internet e atualiza a página.</div>`;
+    return;
+  }
+  if(isAdminRoute()) renderAdminRoute(); else renderClient();
+  window.scrollTo(0, 0);
+}
+/* volta a desenhar sem saltar para o topo */
+function rerender(){
+  const y = window.scrollY;
+  renderHeader();
+  if(isAdminRoute()) renderAdminRoute(); else renderClient();
+  window.scrollTo(0, y);
+}
+
+/* ---------- cliente ---------- */
+function contactBar(){
+  const c = S.settings;
+  return `<div class="actions contact">
+    <a class="btn wa small" href="${wa(c.whatsapp, "Olá! Vim pelo Facebook e queria saber mais sobre os produtos da Business R&M Store.")}" target="_blank" rel="noopener">WhatsApp ${fmtPhone(c.whatsapp)}</a>
+    <a class="btn ghost small" href="${telHref(c.phone)}">Ligar ${fmtPhone(c.phone)}</a>
+  </div>`;
+}
+function productRow(p){
+  const out = p.type === "stock" && p.stock_qty === 0;
+  const few = p.type === "stock" && p.stock_qty != null && p.stock_qty > 0 && p.stock_qty <= 3;
+  const img = imgsOf(p)[0];
+  return `<li><button class="product" data-act="pick" data-id="${p.id}" aria-pressed="${S.selected === p.id}" ${out ? "disabled" : ""}>
+    ${img ? `<span class="tile"><img src="${esc(img)}" alt="" loading="lazy"></span>` : `<span class="tile" style="background:var(--brand);color:var(--brand-ink)">${esc((p.name || "?")[0].toUpperCase())}</span>`}
+    <span><span class="p-name">${esc(p.name)}</span>${p.description ? `<span class="p-meta">${esc(p.description)}</span>` : ""}
+      <span class="badge ${out ? "out" : p.type}">${out ? "Esgotado" : p.type === "order" ? "Por encomenda · chega em " + leadText(p) : few ? "Pronta entrega · restam " + p.stock_qty : "Pronta entrega"}</span></span>
+    <span class="p-price">${kz(p.price_kz)}${p.type === "order" ? `<small>Entrada ${kz(depositOf(p))}</small>` : ""}</span>
+  </button></li>`;
+}
+
+function renderClient(){
+  const v = $("view");
+  if(!S.ready){
+    v.innerHTML = S.loadError
+      ? `<div class="empty">${esc(S.loadError)}</div>`
+      : `<p class="lead">A carregar os produtos…</p>`;
+    return;
+  }
+  if(S.done){ renderDone(v); return; }
+
+  const tomorrow = addDays(1);
+  v.innerHTML = `
+    <h1>Reserva o teu produto</h1>
+    <p class="lead">Escolhe o produto, diz quando precisas e onde entregamos.</p>
+    ${S.products.length ? `<ul class="products">${S.products.map(productRow).join("")}</ul>` : `<div class="empty">Ainda não há produtos disponíveis. Fala connosco pelo WhatsApp.</div>`}
+    <div id="gallery"></div>
+
+    <h2>Os teus dados</h2>
+    <form id="form" novalidate>
+      <label>Nome
+        <input name="name" autocomplete="name" maxlength="100" placeholder="O teu nome completo">
+      </label>
+      <label>Telefone
+        <input name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" placeholder="9XX XXX XXX">
+      </label>
+      <div id="orderInfo" class="notice"></div>
+      <div class="row2">
+        <label>Dia da entrega
+          <input name="date" type="date" min="${addDays(0)}" value="${tomorrow}">
+        </label>
+        <label>Hora
+          <input name="time" type="time" value="10:00">
+        </label>
+      </div>
+      <label>Localização
+        <input name="place" id="place" maxlength="300" placeholder="Bairro, rua ou ponto de referência">
+        <span class="hint"><button type="button" class="link" data-act="geo">Usar a minha localização atual</button></span>
+      </label>
+      <p class="err" id="err" role="alert"></p>
+      <button class="btn primary" type="submit" id="sendBtn">Reservar produto</button>
+    </form>
+    <div class="foot"><p style="margin:0 0 10px">Dúvidas? Fala connosco.</p>${contactBar()}
+      <a href="#/admin">Administração</a></div>`;
+  applyProduct();
+}
+
+function applyProduct(){
+  const p = S.products.find(x => x.id === S.selected);
+  const gal = $("gallery");
+  if(gal) gal.innerHTML = p && imgsOf(p).length
+    ? `<div class="gallery" aria-label="Fotos de ${esc(p.name)}">${imgsOf(p).map((src, i) => `<img src="${esc(src)}" alt="${esc(p.name)}, foto ${i + 1}" loading="lazy">`).join("")}</div>` : "";
+  const box = $("orderInfo"), d = document.querySelector('#form [name="date"]');
+  if(!box || !d) return;
+  if(p && p.type === "order"){
+    const min = addDays(p.max_days);
+    d.min = min; if(d.value < min) d.value = min;
+    box.innerHTML = `<b>Produto por encomenda.</b> Compramos para ti e chega em ${leadText(p)}. Pagas já ${S.settings.deposit_percent}% (${kz(depositOf(p))}) e o resto (${kz(p.price_kz - depositOf(p))}) na entrega.`;
+  } else {
+    d.min = addDays(0);
+    box.textContent = p ? "Pronta entrega." : "";
+  }
+}
+
+function renderDone(v){
+  const r = S.done, isOrder = r.kind === "order";
+  const msg = isOrder
+    ? `Olá! Fiz uma reserva por encomenda na Business R&M Store.\nProduto: ${r.product}\nEntrega: ${dayLabel(r.date)} (${r.date}), às ${r.time}\nLocal: ${r.place}\nNome: ${r.name}\nVou pagar a entrada de ${kz(r.deposit)} e envio o comprovativo.`
+    : `Olá! Fiz uma reserva na Business R&M Store.\nProduto: ${r.product}\nData: ${dayLabel(r.date)} (${r.date}), às ${r.time}\nLocal: ${r.place}\nNome: ${r.name}`;
+  v.innerHTML = `
+    <h1>Reserva enviada</h1>
+    <p class="lead">${isOrder ? "A encomenda fica confirmada quando recebermos a entrada." : "Já guardámos o teu pedido. Vamos confirmar contigo pelo telefone."}</p>
+    <div class="done">
+      <dl>
+        <dt>Produto</dt><dd>${esc(r.product)}</dd>
+        <dt>Quando</dt><dd>${dayLabel(r.date)}, às ${r.time}</dd>
+        <dt>Local</dt><dd>${esc(r.place)}</dd>
+        <dt>Telefone</dt><dd>${esc(r.phone)}</dd>
+        ${isOrder ? `<dt>Entrada (${S.settings.deposit_percent}%)</dt><dd>${kz(r.deposit)}</dd><dt>Resta pagar</dt><dd>${kz(r.total - r.deposit)} na entrega</dd>` : ""}
+      </dl>
+      ${isOrder ? `<div class="notice" style="margin-bottom:16px"><b>Paga a entrada de ${kz(r.deposit)}.</b> ${S.settings.pay_info ? esc(S.settings.pay_info) : "Enviamos-te os dados de pagamento por WhatsApp."} Depois envia o comprovativo.</div>` : ""}
+      <div class="actions">
+        <a class="btn wa" href="${wa(S.settings.whatsapp, msg)}" target="_blank" rel="noopener">${isOrder ? "Enviar comprovativo no WhatsApp" : "Confirmar no WhatsApp"}</a>
+        <button class="btn ghost" data-act="again">Fazer outra reserva</button>
+      </div>
+    </div>
+    <p class="hint" style="margin:16px 0 8px">Dúvidas? Fala connosco.</p>
+    ${contactBar()}`;
+}
+
+async function submitReservation(form){
+  if(S.sending) return;
+  const f = new FormData(form), err = $("err"), btn = $("sendBtn");
+  const p = S.products.find(x => x.id === S.selected);
+  const phoneDigits = String(f.get("phone")).replace(/\D/g, "");
+  const date = f.get("date"), time = f.get("time");
+  if(!p) return err.textContent = "Escolhe um produto na lista.";
+  if(!String(f.get("name")).trim()) return err.textContent = "Escreve o teu nome.";
+  if(phoneDigits.length < 9) return err.textContent = "Escreve um telefone com 9 números.";
+  if(!date || !time) return err.textContent = "Escolhe o dia e a hora da entrega.";
+  if(new Date(`${date}T${time}`) < new Date()) return err.textContent = "A data e hora já passaram. Escolhe um momento futuro.";
+  if(p.type === "order" && date < addDays(p.max_days)) return err.textContent = `Este produto demora ${leadText(p)}. Escolhe um dia a partir de ${fmtDate(addDays(p.max_days))}.`;
+  if(!String(f.get("place")).trim()) return err.textContent = "Diz onde devemos entregar.";
+
+  err.textContent = ""; S.sending = true; btn.disabled = true; btn.textContent = "A enviar…";
+  const res = await db.rpc("create_reservation", {
+    p_product_id: p.id, p_name: String(f.get("name")).trim(), p_phone: String(f.get("phone")).trim(),
+    p_date: date, p_time: time, p_place: String(f.get("place")).trim()
+  });
+  S.sending = false;
+  if(res.error){ err.textContent = friendly(res.error); btn.disabled = false; btn.textContent = "Reservar produto"; return; }
+  S.done = {
+    product: p.name, name: String(f.get("name")).trim(), phone: String(f.get("phone")).trim(),
+    date, time, place: String(f.get("place")).trim(), kind: p.type, total: p.price_kz,
+    deposit: p.type === "order" ? depositOf(p) : 0
+  };
+  try{ await loadPublic(); }catch(e){}
+  render();
+}
+
+/* ---------- administração ---------- */
+function renderAdminRoute(){
+  const v = $("view");
+  if(!S.session){
+    v.innerHTML = `
+      <h1>Administração</h1>
+      <p class="lead">Entra com o e-mail e a senha de administrador.</p>
+      <form id="loginForm" novalidate>
+        <label>E-mail<input name="email" type="email" autocomplete="username" inputmode="email"></label>
+        <label>Senha<input name="password" type="password" autocomplete="current-password"></label>
+        <p class="err" id="err" role="alert">${esc(S.flash)}</p>
+        <button class="btn primary" type="submit" id="loginBtn">Entrar</button>
+      </form>
+      <div class="foot"><a href="#/">Voltar à página de reservas</a></div>`;
+    S.flash = "";
+    return;
+  }
+  if(S.isAdmin === null){ v.innerHTML = `<p class="lead">A verificar o acesso…</p>`; return; }
+  if(!S.isAdmin){
+    v.innerHTML = `<h1>Sem acesso</h1><p class="lead">Esta conta não é de administrador.</p>
+      <button class="btn ghost" data-act="logout">Sair</button>`;
+    return;
+  }
+  if(S.importMode){ renderImport(v); return; }
+  const tabs = `<div class="tabs" role="group" aria-label="Administração">
+    <button data-act="tab" data-tab="orders" aria-pressed="${S.tab === "orders"}">Entregas</button>
+    <button data-act="tab" data-tab="products" aria-pressed="${S.tab === "products"}">Produtos</button>
+    <button data-act="tab" data-tab="finance" aria-pressed="${S.tab === "finance"}">Finanças</button></div>`;
+  const flash = S.flash ? `<div class="flash ${S.flashBad ? "bad" : ""}" role="status">${esc(S.flash)}</div>` : "";
+  let body = "";
+  if(S.tab === "orders") body = ordersHtml();
+  else if(S.tab === "products") body = productsHtml();
+  else body = financeHtml();
+  v.innerHTML = tabs + flash + body;
+  S.flash = ""; S.flashBad = false;
+  if(S.tab === "products") renderPending();
+}
+
+/* --- Entregas --- */
+function resCard(r){
+  const pending = r.status === "pendente";
+  const tag = r.status === "entregue" ? `<span class="tag ok">Entregue</span>` : r.status === "cancelada" ? `<span class="tag off">Cancelada</span>` : `<span class="tag pend">Pendente</span>`;
+  const depTag = (r.kind === "order" && pending) ? `<span class="tag ${r.deposit_paid ? "ok" : "pend"}">${r.deposit_paid ? "Entrada paga" : "Entrada por pagar"}</span>` : "";
+  const pl = payLine(r), map = mapLink(r.place);
+  return `<li class="res ${pending ? "" : "muted"}">
+    <div class="when"><b>${hm(r.delivery_time)}</b><span>${dayLabel(r.delivery_date)}</span></div>
+    <div>
+      <h3>${esc(r.product_name)} ${tag}${depTag}</h3>
+      <p class="info">${esc(r.customer_name)} · ${esc(r.customer_phone)}<br>${esc(r.place)}${pl ? `<br>${esc(pl)}` : ""}</p>
+      <div class="actions">
+        <a class="btn ghost small" href="${telHref(r.customer_phone)}">Ligar</a>
+        <a class="btn ghost small" href="${wa(r.customer_phone, `Olá ${r.customer_name}, aqui é da Business R&M Store. Confirmamos a tua entrega de ${r.product_name} ${dayLabel(r.delivery_date).toLowerCase()} às ${hm(r.delivery_time)}.`)}" target="_blank" rel="noopener">WhatsApp</a>
+        ${map ? `<a class="btn ghost small" href="${map}" target="_blank" rel="noopener">Mapa</a>` : ""}
+        ${r.kind === "order" && pending && !r.deposit_paid ? `<button class="btn ghost small" data-act="paid" data-id="${r.id}">Entrada recebida</button>` : ""}
+        ${r.status !== "cancelada" ? `<button class="btn ghost small" data-act="deliver" data-id="${r.id}">${r.status === "entregue" ? "Reabrir" : "Marcar como entregue"}</button>` : ""}
+        ${pending ? `<button class="btn danger small" data-act="cancel" data-id="${r.id}">Cancelar</button>` : ""}
+      </div>
+    </div>
+  </li>`;
+}
+function ordersHtml(){
+  const pend = S.reservations.filter(r => r.status === "pendente");
+  const done = S.reservations.filter(r => r.status === "entregue").sort((a, b) => dueOf(b) - dueOf(a)).slice(0, 20);
+  const canc = S.reservations.filter(r => r.status === "cancelada").sort((a, b) => dueOf(b) - dueOf(a)).slice(0, 10);
+  const next = pend[0];
+  return `<h1>Entregas</h1>
+    <p class="lead">${pend.length} por entregar.</p>
+    <div class="actions" style="margin:0 0 18px"><button class="btn ghost" data-act="openImport">Importar reservas do Facebook</button></div>
+    ${next ? `<section class="next" aria-live="polite">
+        <p>Próxima entrega</p>
+        <p class="big">${dayLabel(next.delivery_date)}, ${hm(next.delivery_time)}</p>
+        <p><b>${esc(next.product_name)}</b> para ${esc(next.customer_name)}<br>${esc(next.place)}</p>
+        <p style="margin-top:6px">${countdown(next)}</p>
+      </section>` : `<div class="empty">Sem entregas pendentes. Quando um cliente reservar pelo link, aparece aqui.</div>`}
+    ${pend.length ? `<h2>Por entregar</h2><ul class="list">${pend.map(resCard).join("")}</ul>` : ""}
+    ${done.length ? `<h2>Já entregues</h2><ul class="list">${done.map(resCard).join("")}</ul>` : ""}
+    ${canc.length ? `<h2>Canceladas</h2><ul class="list">${canc.map(resCard).join("")}</ul>` : ""}`;
+}
+
+/* --- Produtos --- */
+const thumbsHtml = p => imgsOf(p).length
+  ? `<div class="thumbs">${imgsOf(p).map((src, i) => `<span class="thumb"><img src="${esc(src)}" alt="Foto ${i + 1} de ${esc(p.name)}"><button type="button" data-act="rmimg" data-id="${p.id}" data-i="${i}" aria-label="Remover foto ${i + 1}">×</button></span>`).join("")}</div>`
+  : `<p class="hint" style="margin:6px 0">Sem fotos ainda.</p>`;
+
+function productsHtml(){
+  const c = S.settings;
+  return `<h1>Produtos</h1>
+    <p class="lead">O que o cliente vê para reservar. Nos produtos por encomenda, o cliente paga ${c.deposit_percent}% de entrada.</p>
+    <ul class="list">${S.products.map(p => `
+      <li class="res solo"><div>
+        <h3>${esc(p.name)} <span class="tag ${p.type === "order" ? "pend" : "ok"}">${p.type === "order" ? "Por encomenda" : "Pronta entrega"}</span>${p.active ? "" : ` <span class="tag off">Escondido</span>`}</h3>
+        <p class="info">${p.description ? esc(p.description) + "<br>" : ""}${kz(p.price_kz)}${p.type === "order" ? ` · entrada ${kz(depositOf(p))} · chega em ${leadText(p)}` : (p.stock_qty != null ? ` · stock: ${p.stock_qty}` : "")}</p>
+        ${thumbsHtml(p)}
+        <div class="actions">
+          <label class="btn ghost small">Adicionar fotos<input class="sr" type="file" accept="image/*" multiple data-addimg="${p.id}"></label>
+          <button class="btn ghost small" data-act="prodPrice" data-id="${p.id}">Preço</button>
+          ${p.type === "stock" ? `<button class="btn ghost small" data-act="prodStock" data-id="${p.id}">Stock</button>` : ""}
+          <button class="btn ghost small" data-act="prodToggle" data-id="${p.id}">${p.active ? "Esconder" : "Mostrar"}</button>
+          <button class="btn danger small" data-act="prodDel" data-id="${p.id}">Remover</button>
+        </div>
+      </div></li>`).join("") || `<li class="empty">Ainda não adicionaste produtos.</li>`}</ul>
+
+    <h2>Adicionar produto</h2>
+    <form id="pForm" novalidate>
+      <label>Nome do produto<input name="name" placeholder="Ex.: Bolsa de couro"></label>
+      <label>Descrição curta<input name="meta" placeholder="Ex.: Várias cores"></label>
+      <label>Fotos do produto
+        <input type="file" id="pImgs" accept="image/*" multiple>
+        <span class="hint">Até ${MAX_IMGS} fotos. A primeira aparece na lista.</span>
+      </label>
+      <div class="thumbs" id="pThumbs"></div>
+      <div class="row2">
+        <label>Preço (Kz)<input name="price" type="number" inputmode="numeric" min="1" placeholder="25000"></label>
+        <label>Tipo<select name="type"><option value="stock">Pronta entrega</option><option value="order">Por encomenda</option></select></label>
+      </div>
+      <div class="row2" id="daysRow" style="display:none">
+        <label>Chega em, no mínimo (dias)<input name="minDays" type="number" min="1" value="3"></label>
+        <label>Chega em, no máximo (dias)<input name="maxDays" type="number" min="1" value="4"></label>
+      </div>
+      <label id="stockRow">Quantidade em stock <span class="hint">Deixa vazio se não queres controlar.</span>
+        <input name="stock" type="number" inputmode="numeric" min="0" placeholder="Ex.: 5"></label>
+      <p class="hint" id="depHint" style="margin:0"></p>
+      <p class="err" id="pErr" role="alert"></p>
+      <button class="btn primary" type="submit" id="pBtn">Adicionar produto</button>
+    </form>
+
+    <h2>Pagamento e contactos</h2>
+    <form id="setForm" novalidate>
+      <label>Como o cliente paga a entrada
+        <input name="pay" value="${esc(c.pay_info)}" placeholder="Ex.: IBAN ou Multicaixa Express e nome do titular">
+        <span class="hint">Aparece ao cliente depois de reservar um produto por encomenda.</span>
+      </label>
+      <div class="row2">
+        <label>WhatsApp<input name="wa" type="tel" inputmode="tel" value="${esc(c.whatsapp)}"></label>
+        <label>Telefone para chamadas<input name="ph" type="tel" inputmode="tel" value="${esc(c.phone)}"></label>
+      </div>
+      <label>Percentagem da entrada (%)<input name="dep" type="number" inputmode="numeric" min="1" max="100" value="${c.deposit_percent}"></label>
+      <p class="err" id="sErr" role="alert"></p>
+      <button class="btn ghost" type="submit">Guardar</button>
+    </form>`;
+}
+function renderPending(){
+  const box = $("pThumbs"); if(!box) return;
+  box.innerHTML = S.pending.map((x, i) => `<span class="thumb"><img src="${x.preview}" alt="Foto ${i + 1}"><button type="button" data-act="rmpend" data-i="${i}" aria-label="Remover foto ${i + 1}">×</button></span>`).join("");
+}
+
+/* --- Finanças --- */
+const inToday = e => e.paid_on === addDays(0);
+function weekStart(){ const x = new Date(); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return iso(x); }
+const inWeek = e => e.paid_on >= weekStart() && e.paid_on <= addDays(0);
+const inMonth = e => e.paid_on.slice(0, 7) === addDays(0).slice(0, 7);
+function financeHtml(){
+  const tests = {today: inToday, week: inWeek, month: inMonth, all: () => true};
+  const names = {today: "Hoje", week: "Esta semana", month: "Este mês", all: "Tudo"};
+  const P = S.payments;
+  const list = P.filter(tests[S.finPeriod]);
+  const byDay = {};
+  list.forEach(e => (byDay[e.paid_on] = byDay[e.paid_on] || []).push(e));
+  const dates = Object.keys(byDay).sort().reverse();
+  const byProd = {};
+  list.forEach(e => { byProd[e.product_name] = (byProd[e.product_name] || 0) + e.amount_kz; });
+  const prods = Object.entries(byProd).sort((a, b) => b[1] - a[1]);
+  const toReceive = S.reservations.filter(r => r.status === "pendente").reduce((a, r) => a + owedAtDelivery(r), 0);
+  const kindName = {entrada: "Entrada", entrega: "Na entrega", reembolso: "Reembolso"};
+  const kindTag = {entrada: "pend", entrega: "ok", reembolso: "off"};
+  return `<h1>Finanças</h1>
+    <p class="lead">Tudo o que entrou: entradas das encomendas e pagamentos recebidos nas entregas. Só os administradores veem esta página.</p>
+    <section class="fin" aria-label="Totais">
+      <p>Total recebido</p>
+      <p class="big">${kz(sumOf(P))}</p>
+      <div class="fin-row">
+        <div><span>Hoje</span><b>${kz(sumOf(P.filter(inToday)))}</b></div>
+        <div><span>Esta semana</span><b>${kz(sumOf(P.filter(inWeek)))}</b></div>
+        <div><span>Este mês</span><b>${kz(sumOf(P.filter(inMonth)))}</b></div>
+      </div>
+    </section>
+    <p class="hint" style="margin:6px 0 0">Ainda por receber das entregas pendentes: <b>${kz(toReceive)}</b></p>
+
+    <h2>Detalhe</h2>
+    <div class="seg" role="group" aria-label="Período">
+      ${Object.keys(names).map(k => `<button data-act="per" data-per="${k}" aria-pressed="${S.finPeriod === k}">${names[k]}</button>`).join("")}
+    </div>
+    ${list.length ? `
+      <ul class="list">${dates.map(d => `
+        <li class="day">
+          <div class="day-head"><b>${dayLabel(d)}</b><b>${kz(sumOf(byDay[d]))}</b></div>
+          <ul class="lines">${byDay[d].map(e => `
+            <li><span>${esc(e.product_name)} <span class="tag ${kindTag[e.kind]}">${kindName[e.kind]}</span></span><span>${kz(e.amount_kz)}</span></li>`).join("")}
+          </ul>
+        </li>`).join("")}
+      </ul>
+      <h2>Por produto · ${names[S.finPeriod].toLowerCase()}</h2>
+      <div class="box"><ul class="lines">
+        ${prods.map(([n, val]) => `<li><span>${esc(n)}</span><span>${kz(val)}</span></li>`).join("")}
+        <li class="sum"><span>Total</span><span>${kz(sumOf(list))}</span></li>
+      </ul></div>` : `<div class="empty">Ainda não entrou nada neste período.</div>`}`;
+}
+/* --- Importar reservas do Facebook --- */
+const MSG_TEMPLATE = "Olá! 👋 Somos a Business R&M Store 🛍️\n\nPara reservar o seu produto, responda a esta mensagem com os seus dados:\n\n👤 Nome:\n📞 Telefone:\n📦 Produto:\n📅 Dia (DD/MM/AAAA):\n⏰ Hora (HH:MM):\n📍 Localização:\n\nObrigado pela preferência! 🙏";
+const FIELD = {nome:"name", telefone:"phone", telemovel:"phone", contacto:"phone", numero:"phone",
+  produto:"product", dia:"date", data:"date", hora:"time",
+  localizacao:"place", local:"place", morada:"place", endereco:"place"};
+const keyOf = s => String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\(.*?\)/g, "").replace(/[^a-z]/g, "");
+
+function parseCSV(text){
+  const first = text.split(/\r?\n/)[0] || "";
+  const n = c => first.split(c).length;
+  const d = n("\t") > 1 ? "\t" : (n(";") > 1 && n(";") >= n(",") ? ";" : ",");
+  const rows = []; let row = [], cell = "", q = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){ if(c === '"'){ if(text[i + 1] === '"'){ cell += '"'; i++; } else q = false; } else cell += c; }
+    else if(c === '"') q = true;
+    else if(c === d){ row.push(cell); cell = ""; }
+    else if(c === "\n" || c === "\r"){ if(c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+    else cell += c;
+  }
+  if(cell !== "" || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim() !== ""));
+}
+function normDate(v){
+  const s = String(v || "").trim().toLowerCase(); const t = new Date();
+  if(s === "hoje") return iso(t);
+  if(s === "amanhã" || s === "amanha"){ t.setDate(t.getDate() + 1); return iso(t); }
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/), y, mo, d;
+  if(m){ y = +m[1]; mo = +m[2]; d = +m[3]; }
+  else {
+    m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2}|\d{4})$/);
+    if(!m) return null;
+    d = +m[1]; mo = +m[2]; y = +m[3]; if(y < 100) y += 2000;
+  }
+  const dt = new Date(y, mo - 1, d);
+  if(dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+  return `${y}-${pad(mo)}-${pad(d)}`;
+}
+function normTime(v){
+  const m = String(v || "").trim().toLowerCase().match(/^(\d{1,2})\s*(?:[:h]\s*(\d{2})?)?$/);
+  if(!m) return null;
+  const h = +m[1], mi = +(m[2] || 0);
+  return (h > 23 || mi > 59) ? null : `${pad(h)}:${pad(mi)}`;
+}
+function checkRec(raw){
+  const errors = [];
+  const name = (raw.name || "").trim(), phone = (raw.phone || "").trim();
+  const place = (raw.place || "").trim(), pt = (raw.product || "").trim();
+  const date = normDate(raw.date), time = normTime(raw.time);
+  if(!name) errors.push("falta o nome");
+  if(phone.replace(/\D/g, "").length < 9) errors.push("telefone inválido");
+  if(!date) errors.push("dia inválido");
+  if(!time) errors.push("hora inválida");
+  if(!place) errors.push("falta a localização");
+  const found = pt ? S.products.find(p => p.active && p.name.toLowerCase().includes(pt.toLowerCase())) : null;
+  if(!pt) errors.push("falta o produto");
+  else if(!found) errors.push("produto não encontrado na lista");
+  if(found && found.type === "order" && date && date < addDays(found.max_days)) errors.push(`encomenda demora ${leadText(found)}, escolhe um dia a partir de ${fmtDate(addDays(found.max_days))}`);
+  if(found && found.type === "stock" && found.stock_qty === 0) errors.push("produto esgotado");
+  if(date && time && new Date(`${date}T${time}`) < new Date()) errors.push("data e hora já passaram");
+  return {name, phone, place, date, time, product: found ? found.name : pt, found, errors};
+}
+function parseInput(text){
+  text = text.replace(/^\uFEFF/, "").trim();
+  if(!text) return {recs: [], msg: "Cola as respostas dos clientes."};
+  const blockMode = /^[^\p{L}\n]*(nome|telefone|produto|dia|data|hora|localiza\S*)\b[^\n:：]*[:：]/imu.test(text);
+  let raws = [];
+  if(blockMode){
+    text.split(/\n\s*\n/).forEach(block => {
+      let cur = {};
+      block.split(/\r?\n/).forEach(line => {
+        const m = line.match(/^\s*((?:\([^)]*\)|[^:：(]){2,40})[:：]\s*(.*)$/);
+        const f = m && FIELD[keyOf(m[1])];
+        if(!f) return;
+        if(f === "name" && cur.name !== undefined){ raws.push(cur); cur = {}; }
+        cur[f] = m[2].trim();
+      });
+      if(Object.keys(cur).length) raws.push(cur);
+    });
+  } else {
+    const rows = parseCSV(text);
+    const cols = rows[0].map(h => FIELD[keyOf(h)]);
+    if(cols.filter(Boolean).length < 3) return {recs: [], msg: "Não encontrei os títulos das colunas. Usa a mensagem modelo."};
+    raws = rows.slice(1).map(r => { const o = {}; cols.forEach((f, i) => { if(f) o[f] = (r[i] || "").trim(); }); return o; });
+  }
+  if(!raws.length) return {recs: [], msg: "Não encontrei nenhuma reserva nos dados."};
+  return {recs: raws.map(checkRec), msg: ""};
+}
+function previewHtml(){
+  if(!S.importRecs.length) return S.importMsg ? `<p class="err" role="alert">${esc(S.importMsg)}</p>` : "";
+  const ok = S.importRecs.filter(r => !r.errors.length).length;
+  return `<h2>${ok} de ${S.importRecs.length} prontas para adicionar</h2>
+    <ul class="prev">${S.importRecs.map(r => `
+      <li><b>${esc(r.product || "Sem produto")}</b> · ${esc(r.name || "Sem nome")}<br>
+        <span class="hint">${r.date ? dayLabel(r.date) : "?"}, ${r.time || "?"} · ${esc(r.place || "sem local")} · ${esc(r.phone || "sem telefone")}</span>
+        ${r.errors.length ? `<p class="bad">Corrigir: ${esc(r.errors.join(", "))}</p>` : `<p class="good">Pronta</p>`}
+      </li>`).join("")}</ul>
+    <button class="btn primary" data-act="addImport" ${ok ? "" : "disabled"}>Adicionar ${ok} ${ok === 1 ? "reserva" : "reservas"}</button>`;
+}
+function renderImport(v){
+  v.innerHTML = `
+    <button class="link" data-act="closeImport">Voltar às entregas</button>
+    <h1 style="margin-top:12px">Importar reservas</h1>
+    <p class="lead">Para quem comentou na publicação e respondeu na mensagem privada do Facebook.</p>
+    <h2>1. Envia o modelo ao cliente</h2>
+    <p class="hint" style="margin:0 0 10px">Cola a mensagem na conversa privada do Facebook. O cliente só precisa de responder com os dados.</p>
+    <div class="actions"><button class="btn ghost" data-act="copyTpl">Copiar mensagem modelo</button></div>
+    <p class="hint" id="copyMsg" role="status" style="margin:8px 0 0"></p>
+    <h2>2. Cola as respostas dos clientes</h2>
+    <form id="impForm" novalidate>
+      <label>Respostas dos clientes
+        <textarea id="imp" placeholder="Nome: Maria Santos&#10;Telefone: 923 000 111&#10;Produto: Bolsa de ombro&#10;Dia: 25/12/2026&#10;Hora: 10:00&#10;Localização: Bairro Académico">${esc(S.importText)}</textarea>
+        <span class="hint">Deixa uma linha em branco entre um cliente e outro.</span>
+      </label>
+      <button class="btn primary" type="submit">Ler dados</button>
+    </form>
+    <div id="preview">${previewHtml()}</div>`;
+}
+function copyText(t){
+  if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
+  return new Promise((ok, fail) => {
+    const ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy") ? ok() : fail(); }catch(e){ fail(e); }
+    ta.remove();
+  });
+}
+
+/* ---------- fotos ---------- */
+function compress(file){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const sc = Math.min(1, 1000 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(b => b ? res(b) : rej(new Error("Foto inválida")), "image/jpeg", 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("Não foi possível ler a foto")); };
+    img.src = url;
+  });
+}
+async function uploadImage(blob){
+  const path = `${crypto.randomUUID()}.jpg`;
+  const up = await db.storage.from("product-images").upload(path, blob, {contentType: "image/jpeg", cacheControl: "31536000"});
+  if(up.error) throw up.error;
+  return db.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+}
+function removeStored(url){
+  const part = String(url).split("/product-images/")[1];
+  if(part) db.storage.from("product-images").remove([decodeURIComponent(part)]).catch(() => {});
+}
+
+/* ---------- ações do administrador ---------- */
+async function act(fn, okMsg){
+  if(S.busy) return;
+  S.busy = true;
+  try{ await fn(); if(okMsg){ S.flash = okMsg; S.flashBad = false; } }
+  catch(e){ S.flash = (e && e.message) ? "Erro: " + e.message : "Não foi possível concluir."; S.flashBad = true; }
+  try{ await Promise.all([loadAdmin(), loadPublic()]); }catch(e){}
+  S.busy = false;
+  rerender();
+}
+const rpc = async (name, args) => { const r = await db.rpc(name, args); if(r.error) throw r.error; return r.data; };
+
+async function onClick(e){
+  const b = e.target.closest("[data-act]"); if(!b) return;
+  const a = b.dataset.act, id = Number(b.dataset.id);
+  switch(a){
+    case "pick": S.selected = id; document.querySelectorAll(".product").forEach(x => x.setAttribute("aria-pressed", x === b)); $("err").textContent = ""; applyProduct(); break;
+    case "geo": {
+      const err = $("err");
+      if(!navigator.geolocation){ err.textContent = "Este telemóvel não permite obter a localização. Escreve o bairro."; break; }
+      navigator.geolocation.getCurrentPosition(
+        pos => { $("place").value = `Localização atual (${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)})`; err.textContent = ""; },
+        () => { err.textContent = "Não foi possível obter a localização. Escreve o bairro ou ponto de referência."; });
+      break;
+    }
+    case "again": S.done = null; S.selected = null; render(); break;
+    case "logout": await db.auth.signOut(); S.session = null; S.isAdmin = false; S.reservations = []; S.payments = []; S.importMode = false; location.hash = "#/"; try{ await loadPublic(); }catch(err){} render(); break;
+    case "tab": S.tab = b.dataset.tab; S.flash = ""; render(); break;
+    case "per": S.finPeriod = b.dataset.per; rerender(); break;
+    case "alertClose": $("toast").hidden = true; break;
+    case "openImport": S.importMode = true; S.importRecs = []; S.importMsg = ""; render(); break;
+    case "closeImport": S.importMode = false; render(); break;
+    case "copyTpl": copyText(MSG_TEMPLATE).then(() => { $("copyMsg").textContent = "Copiado. Cola na conversa do Facebook."; }, () => { $("copyMsg").textContent = "Não foi possível copiar. Seleciona o texto e copia manualmente."; }); break;
+    case "paid": act(() => rpc("mark_deposit_paid", {p_id: id}), "Entrada registada nas finanças."); break;
+    case "deliver": act(() => rpc("toggle_delivered", {p_id: id}), "Entrega atualizada."); break;
+    case "cancel": {
+      const r = S.reservations.find(x => x.id === id); if(!r) break;
+      if(!confirm(`Cancelar a reserva de ${r.customer_name}?`)) break;
+      const refund = r.deposit_paid && r.deposit_kz > 0 && confirm(`Registar o reembolso da entrada de ${kz(r.deposit_kz)}?`);
+      act(() => rpc("cancel_reservation", {p_id: id, p_refund: refund}), "Reserva cancelada.");
+      break;
+    }
+    case "prodToggle": { const p = S.products.find(x => x.id === id); act(async () => { const r = await db.from("products").update({active: !p.active}).eq("id", id); if(r.error) throw r.error; }, p.active ? "Produto escondido dos clientes." : "Produto visível para os clientes."); break; }
+    case "prodDel": {
+      const p = S.products.find(x => x.id === id); if(!p) break;
+      if(!confirm(`Remover "${p.name}"? As reservas já feitas continuam no histórico.`)) break;
+      act(async () => { const r = await db.from("products").delete().eq("id", id); if(r.error) throw r.error; imgsOf(p).forEach(removeStored); }, "Produto removido.");
+      break;
+    }
+    case "prodPrice": {
+      const p = S.products.find(x => x.id === id); if(!p) break;
+      const v = prompt("Novo preço em Kz:", p.price_kz); if(v === null) break;
+      const n = Math.round(Number(String(v).replace(/\s|\./g, "").replace(",", ".")));
+      if(!(n > 0)){ S.flash = "Preço inválido."; S.flashBad = true; rerender(); break; }
+      act(async () => { const r = await db.from("products").update({price_kz: n}).eq("id", id); if(r.error) throw r.error; }, "Preço atualizado.");
+      break;
+    }
+    case "prodStock": {
+      const p = S.products.find(x => x.id === id); if(!p) break;
+      const v = prompt("Quantidade em stock (deixa vazio para não controlar):", p.stock_qty == null ? "" : p.stock_qty); if(v === null) break;
+      const n = String(v).trim() === "" ? null : Math.round(Number(v));
+      if(n !== null && !(n >= 0)){ S.flash = "Quantidade inválida."; S.flashBad = true; rerender(); break; }
+      act(async () => { const r = await db.from("products").update({stock_qty: n}).eq("id", id); if(r.error) throw r.error; }, "Stock atualizado.");
+      break;
+    }
+    case "rmimg": {
+      const p = S.products.find(x => x.id === id); if(!p) break;
+      const i = Number(b.dataset.i), url = imgsOf(p)[i];
+      act(async () => { const r = await db.from("products").update({images: imgsOf(p).filter((_, k) => k !== i)}).eq("id", id); if(r.error) throw r.error; if(url) removeStored(url); }, "Foto removida.");
+      break;
+    }
+    case "rmpend": { const i = Number(b.dataset.i); URL.revokeObjectURL(S.pending[i].preview); S.pending.splice(i, 1); renderPending(); break; }
+    case "addImport": addImported(b); break;
+  }
+}
+
+async function addImported(btn){
+  const good = S.importRecs.filter(r => !r.errors.length);
+  if(!good.length || S.busy) return;
+  S.busy = true; btn.disabled = true; btn.textContent = "A adicionar…";
+  let ok = 0; const fails = [];
+  for(const r of good){
+    const res = await db.rpc("create_reservation", {p_product_id: r.found.id, p_name: r.name, p_phone: r.phone, p_date: r.date, p_time: r.time, p_place: r.place});
+    if(res.error) fails.push(`${r.name}: ${friendly(res.error)}`); else ok++;
+  }
+  try{ await Promise.all([loadAdmin(), loadPublic()]); }catch(e){}
+  S.busy = false; S.importMode = false; S.importText = ""; S.importRecs = [];
+  S.flash = `${ok} ${ok === 1 ? "reserva adicionada" : "reservas adicionadas"}.` + (fails.length ? " Falharam: " + fails.join(" | ") : "");
+  S.flashBad = fails.length > 0;
+  S.tab = "orders"; render();
+}
+
+async function onSubmit(e){
+  e.preventDefault();
+  const f = e.target;
+  if(f.id === "form") return submitReservation(f);
+  if(f.id === "loginForm"){
+    const d = new FormData(f), btn = $("loginBtn"), err = $("err");
+    btn.disabled = true; btn.textContent = "A entrar…"; err.textContent = "";
+    const r = await db.auth.signInWithPassword({email: String(d.get("email")).trim(), password: String(d.get("password"))});
+    if(r.error){ err.textContent = "E-mail ou senha incorretos."; btn.disabled = false; btn.textContent = "Entrar"; }
+    return;
+  }
+  if(f.id === "impForm"){
+    S.importText = $("imp").value;
+    const r = parseInput(S.importText); S.importRecs = r.recs; S.importMsg = r.msg;
+    $("preview").innerHTML = previewHtml();
+    return;
+  }
+  if(f.id === "setForm"){
+    const d = new FormData(f), err = $("sErr");
+    const wa_ = String(d.get("wa")).trim(), ph = String(d.get("ph")).trim(), dep = Math.round(Number(d.get("dep")));
+    if(wa_.replace(/\D/g, "").length < 9 || ph.replace(/\D/g, "").length < 9) return err.textContent = "Escreve números com 9 dígitos.";
+    if(!(dep >= 1 && dep <= 100)) return err.textContent = "A entrada tem de estar entre 1% e 100%.";
+    act(async () => {
+      const r = await db.from("settings").update({whatsapp: wa_, phone: ph, pay_info: String(d.get("pay")).trim(), deposit_percent: dep}).eq("id", 1);
+      if(r.error) throw r.error;
+    }, "Guardado.");
+    return;
+  }
+  if(f.id === "pForm"){
+    const d = new FormData(f), err = $("pErr"), btn = $("pBtn");
+    const name = String(d.get("name")).trim(), price = Math.round(Number(d.get("price")));
+    const type = d.get("type"), minD = Number(d.get("minDays")), maxD = Number(d.get("maxDays"));
+    const stockRaw = String(d.get("stock")).trim(), stock = stockRaw === "" ? null : Math.round(Number(stockRaw));
+    if(!name) return err.textContent = "Escreve o nome do produto.";
+    if(!(price > 0)) return err.textContent = "Escreve o preço em Kz.";
+    if(type === "order" && !(minD >= 1 && maxD >= minD)) return err.textContent = "Indica os dias: o máximo não pode ser menor que o mínimo.";
+    if(type === "stock" && stock !== null && !(stock >= 0)) return err.textContent = "A quantidade em stock é inválida.";
+    if(!S.pending.length) return err.textContent = "Adiciona pelo menos uma foto do produto.";
+    err.textContent = ""; btn.disabled = true; btn.textContent = "A enviar fotos…";
+    const photos = S.pending.slice();
+    act(async () => {
+      const urls = [];
+      for(const x of photos) urls.push(await uploadImage(x.blob));
+      const r = await db.from("products").insert({
+        name, description: String(d.get("meta")).trim(), price_kz: price, type,
+        min_days: type === "order" ? minD : 0, max_days: type === "order" ? maxD : 0,
+        stock_qty: type === "stock" ? stock : null, images: urls
+      });
+      if(r.error) throw r.error;
+      photos.forEach(x => URL.revokeObjectURL(x.preview)); S.pending = [];
+    }, "Produto adicionado.");
+  }
+}
+
+async function onChange(e){
+  const t = e.target;
+  if(t.id === "pImgs"){
+    const room = MAX_IMGS - S.pending.length, files = [...t.files].slice(0, Math.max(0, room));
+    for(const file of files){
+      try{ const blob = await compress(file); S.pending.push({blob, preview: URL.createObjectURL(blob)}); }catch(err){ $("pErr").textContent = err.message; }
+    }
+    t.value = ""; renderPending();
+  } else if(t.dataset && t.dataset.addimg){
+    const id = Number(t.dataset.addimg), p = S.products.find(x => x.id === id); if(!p) return;
+    const room = MAX_IMGS - imgsOf(p).length;
+    if(room <= 0){ S.flash = `Cada produto pode ter até ${MAX_IMGS} fotos.`; S.flashBad = true; rerender(); return; }
+    const files = [...t.files].slice(0, room);
+    act(async () => {
+      const urls = [];
+      for(const file of files) urls.push(await uploadImage(await compress(file)));
+      const r = await db.from("products").update({images: imgsOf(p).concat(urls)}).eq("id", id);
+      if(r.error) throw r.error;
+    }, "Fotos adicionadas.");
+  } else if(t.name === "type" && t.form && t.form.id === "pForm"){ productFormHint(); }
+}
+function onInput(e){
+  if(e.target.name === "price" && e.target.form && e.target.form.id === "pForm") productFormHint();
+}
+function productFormHint(){
+  const f = $("pForm"); if(!f) return;
+  const order = f.elements.type.value === "order";
+  $("daysRow").style.display = order ? "" : "none";
+  $("stockRow").style.display = order ? "none" : "";
+  const price = Number(f.elements.price.value);
+  $("depHint").textContent = order && price > 0
+    ? `O cliente paga ${kz(price * S.settings.deposit_percent / 100)} de entrada e ${kz(price - Math.round(price * S.settings.deposit_percent / 100))} na entrega.` : "";
+}
+
+/* ---------- avisos de entrega (com o painel aberto) ---------- */
+function checkDue(){
+  if(!S.isAdmin) return;
+  const now = Date.now();
+  S.reservations.forEach(r => {
+    if(r.status !== "pendente" || S.alerted.has(r.id)) return;
+    const diff = now - dueOf(r).getTime();
+    if(diff >= 0 && diff < 10 * 60000){
+      S.alerted.add(r.id);
+      $("toastText").textContent = `Tens uma entrega ${dayLabel(r.delivery_date).toLowerCase()} às ${hm(r.delivery_time)}.\nProduto: ${r.product_name}\nLocal: ${r.place}\nCliente: ${r.customer_name} (${r.customer_phone})\nA receber na entrega: ${kz(owedAtDelivery(r))}`;
+      $("toastCall").href = wa(r.customer_phone, `Olá ${r.customer_name}, estou a caminho com a tua entrega de ${r.product_name}.`);
+      $("toast").hidden = false;
+    }
+  });
+}
+async function tick(){
+  if(!S.isAdmin || !isAdminRoute() || S.busy || document.hidden) return;
+  try{ await loadAdmin(); }catch(e){ return; }
+  checkDue();
+  if(!S.importMode && S.tab !== "products" && !document.activeElement.matches("input,textarea,select")) rerender();
+}
+
+/* ---------- arranque ---------- */
+function init(){
+  const v = $("view");
+  v.addEventListener("click", onClick);
+  v.addEventListener("submit", onSubmit);
+  v.addEventListener("change", onChange);
+  v.addEventListener("input", onInput);
+  $("top").addEventListener("click", onClick);
+  $("toast").addEventListener("click", onClick);
+  window.addEventListener("hashchange", () => { S.importMode = false; render(); });
+  if(!db){ render(); return; }
+
+  const pid = Number(new URLSearchParams(location.search).get("produto"));
+  if(pid) S.selected = pid;
+
+  db.auth.onAuthStateChange((event, session) => {
+    const had = !!S.session; S.session = session;
+    if(!!session !== had) setTimeout(afterAuth, 0);
+  });
+  db.auth.getSession().then(r => { const had = !!S.session; S.session = r.data && r.data.session; if(S.session && !had) setTimeout(afterAuth, 0); });
+
+  render();
+  loadPublic().then(() => { if(S.selected && !S.products.some(p => p.id === S.selected)) S.selected = null; render(); applyProduct(); })
+    .catch(() => { S.loadError = "Não foi possível carregar os produtos. Verifica a internet e atualiza a página."; render(); });
+  setInterval(tick, 30000);
+}
+init();
+</script>
+</body>
+</html>
